@@ -1,0 +1,985 @@
+LIBRARY IEEE;
+USE IEEE.std_logic_1164.ALL;
+
+entity mycpu is
+		port ( 
+			-- clock signal
+			CLK							:		in	std_logic;
+			-- reset for processor
+			nReset					:		in	std_logic;
+			-- halt for processor
+			halt						:		out	std_logic;
+            ramAddr : out std_logic_vector(15 downto 0);
+            ramData : out std_logic_vector(31 downto 0);
+            ramWen  : out std_logic;
+            ramRen  : out std_logic;
+            ramQ    : in  std_logic_vector(31 downto 0);
+            ramState : in std_logic_vector(1 downto 0)
+		);
+end mycpu;
+
+architecture arch_mycpu of mycpu is
+
+  
+  ------------------------ COMPONENTS FOR INSTRUCTION FETCH BLOCK -------------------------          
+  
+  component mux32Bit
+  port ( 
+        val0, val1: IN STD_LOGIC_VECTOR (31 downto 0);
+        muxEnable: IN STD_LOGIC;
+        muxOutput: OUT STD_LOGIC_VECTOR (31 downto 0)
+        );
+  end component;
+  
+  component pcReg
+  port(
+       clk: in std_logic;
+       rst_n: in std_logic;
+       pcWriteEnable: in std_logic;
+       nextPC: in std_logic_vector(31 downto 0);
+       programCounter: out std_logic_vector(31 downto 0)
+       );
+  end component;
+  
+  component orer
+    port ( 
+        input1: IN STD_LOGIC;
+        input2: IN STD_LOGIC;
+        orOutput: OUT STD_LOGIC
+        );
+  end component;
+  
+  --------------------------- IF/ID PIPELINE REGISTER ----------------------------------------------
+  component pipelineRegister_IF_ID
+  port(
+    clk : in STD_LOGIC;
+    rst_n : in STD_LOGIC;
+    regWriteEnable : in STD_LOGIC;
+    
+    IF_instruction : in STD_LOGIC_VECTOR(31 downto 0);
+    IF_programCounter : in STD_LOGIC_VECTOR(31 downto 0);
+    
+    ID_instruction : out STD_LOGIC_VECTOR(31 downto 0);
+    ID_programCounter : out STD_LOGIC_VECTOR(31 downto 0)
+    );
+  end component;
+  
+
+  --------------------------- COMPONENTS FOR INSTRUCTION DECODE BLOCK ------------------------------
+  component controller
+   port ( opcode: in STD_LOGIC_VECTOR(5 downto 0);
+          function_code: in STD_LOGIC_VECTOR(5 downto 0);
+
+          regDst: out STD_LOGIC;
+          extOp: out STD_LOGIC;
+          branch: out STD_LOGIC;
+          memRead: out STD_LOGIC;
+          memToReg: out STD_LOGIC;
+          ALUCtr: out STD_LOGIC_VECTOR(3 downto 0);
+          memWrite: out STD_LOGIC;
+          ALUSrc: out STD_LOGIC;
+          regWrite: out STD_LOGIC;
+          j_flag: out STD_LOGIC;
+          jal_flag: out STD_LOGIC;
+          jr_flag: out STD_LOGIC;
+          lui_flag: out STD_LOGIC;
+          slt_u_flag: out STD_LOGIC;
+          pc_write_enable: out STD_LOGIC;
+          bne_flag: out STD_LOGIC;
+          lw_flag: out STD_LOGIC;
+          halt_flag: out STD_LOGIC;
+          shamt_flag: OUT STD_LOGIC;
+          sign_flag: out STD_LOGIC
+	);
+  end component;
+ 
+  component twoInputAdder
+  port ( 
+        val1, val2: IN STD_LOGIC_VECTOR (31 downto 0);
+        addRes: OUT STD_LOGIC_VECTOR (31 downto 0)
+        );
+  end component;
+
+  component pcUpdate
+  port ( 
+        programCounter: IN STD_LOGIC_VECTOR (31 downto 0);
+        jlabel: IN STD_LOGIC_VECTOR (25 downto 0);
+        updatedPC: OUT STD_LOGIC_VECTOR(31 downto 0)
+        );
+  end component;
+
+  component registerFile
+	port
+	(
+		-- Write data input port
+		wdat		:	in	std_logic_vector (31 downto 0);
+		-- Select which register to write
+		wsel		:	in	std_logic_vector (4 downto 0);
+		-- Write Enable for entire register file
+		wen			:	in	std_logic;
+		-- clock, positive edge triggered
+		clk			:	in	std_logic;
+		-- REMEMBER: nReset-> '0' = RESET, '1' = RUN
+		nReset	:	in	std_logic;
+		-- Select which register to read on rdat1 
+		rsel1		:	in	std_logic_vector (4 downto 0);
+		-- Select which register to read on rdat2
+		rsel2		:	in	std_logic_vector (4 downto 0);
+		-- read port 1
+		rdat1		:	out	std_logic_vector (31 downto 0);
+		-- read port 2
+		rdat2		:	out	std_logic_vector (31 downto 0)
+		);
+  end component;
+  
+  component signExtender
+    port ( 
+        imm16: IN STD_LOGIC_VECTOR (15 downto 0);
+        extOp: IN STD_LOGIC;
+        signExtended: OUT STD_LOGIC_VECTOR (31 downto 0)
+        );
+  end component;
+  
+  component luiShifter
+    port ( 
+        imm16: IN STD_LOGIC_VECTOR (15 downto 0);
+        shiftedOut: OUT STD_LOGIC_VECTOR (31 downto 0)
+        );
+  end component;
+
+  --------------------------- ID/EX PIPELINE REGISTER ----------------------------------------------
+  component pipelineRegister_ID_EX
+  port(
+    clk : in STD_LOGIC;
+    rst_n : in STD_LOGIC;
+    regWriteEnable : in STD_LOGIC;
+    
+          ID_WB : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+          ID_M : IN STD_LOGIC;
+          ID_EX : IN STD_LOGIC;
+
+          ID_regDst: IN STD_LOGIC;
+          ID_extOp: IN STD_LOGIC;
+          ID_branch: IN STD_LOGIC;
+          ID_memRead: IN STD_LOGIC;
+          ID_memToReg: IN STD_LOGIC;
+          ID_ALUCtr: IN STD_LOGIC_VECTOR(3 downto 0);
+          ID_memWrite: IN STD_LOGIC;
+          ID_ALUSrc: IN STD_LOGIC;
+          ID_regWrite: IN STD_LOGIC;
+          ID_j_flag: IN STD_LOGIC;
+          ID_jal_flag: IN STD_LOGIC;
+          ID_jr_flag: IN STD_LOGIC;
+          ID_lui_flag: IN STD_LOGIC;
+          ID_slt_u_flag: IN STD_LOGIC;
+          ID_pc_write_enable: IN STD_LOGIC;
+          ID_bne_flag: IN STD_LOGIC;
+          ID_lw_flag: IN STD_LOGIC;
+          ID_halt_flag: IN STD_LOGIC;
+          ID_shamt_flag: IN STD_LOGIC;
+          ID_sign_flag: IN STD_LOGIC;
+          
+          ID_instruction: in STD_LOGIC_VECTOR(31 downto 0);
+          ID_Data1 : IN STD_LOGIC_VECTOR(31 downto 0);
+          ID_Data2 : IN STD_LOGIC_VECTOR(31 downto 0);
+          ID_luiShifted : IN STD_LOGIC_VECTOR(31 downto 0);
+          ID_nextPC : IN STD_LOGIC_VECTOR(31 downto 0);
+          ID_branchAddr : IN STD_LOGIC_VECTOR(31 downto 0);
+          ID_jumpAddr : IN STD_LOGIC_VECTOR(31 downto 0);
+          
+          EX_WB : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+          EX_M : OUT STD_LOGIC;
+          EX_EX : OUT STD_LOGIC;
+          
+          EX_regDst: out STD_LOGIC;
+          EX_extOp: out STD_LOGIC;
+          EX_branch: out STD_LOGIC;
+          EX_memRead: out STD_LOGIC;
+          EX_memToReg: out STD_LOGIC;
+          EX_ALUCtr: out STD_LOGIC_VECTOR(3 downto 0);
+          EX_memWrite: out STD_LOGIC;
+          EX_ALUSrc: out STD_LOGIC;
+          EX_regWrite: out STD_LOGIC;
+          EX_j_flag: out STD_LOGIC;
+          EX_jal_flag: out STD_LOGIC;
+          EX_jr_flag: out STD_LOGIC;
+          EX_lui_flag: out STD_LOGIC;
+          EX_slt_u_flag: out STD_LOGIC;
+          EX_pc_write_enable: out STD_LOGIC;
+          EX_bne_flag: out STD_LOGIC;
+          EX_lw_flag: out STD_LOGIC;
+          EX_halt_flag: out STD_LOGIC;
+          EX_shamt_flag: OUT STD_LOGIC;
+          EX_sign_flag: out STD_LOGIC;
+
+          EX_instruction: OUT STD_LOGIC_VECTOR(31 downto 0);
+          EX_Data1 : OUT STD_LOGIC_VECTOR(31 downto 0);
+          EX_Data2 : OUT STD_LOGIC_VECTOR(31 downto 0);
+          EX_luiShifted : OUT STD_LOGIC_VECTOR(31 downto 0);
+          EX_nextPC : OUT STD_LOGIC_VECTOR(31 downto 0);
+          EX_branchAddr : OUT STD_LOGIC_VECTOR(31 downto 0);
+          EX_jumpAddr : OUT STD_LOGIC_VECTOR(31 downto 0)	
+    );
+
+  end component;
+
+  --------------------------- COMPONENTS FOR THE EXECUTE BLOCK -----------------------------
+
+  component alu
+    port ( 
+        opcode: IN STD_LOGIC_VECTOR (3 downto 0);
+        A, B: IN STD_LOGIC_VECTOR (31 downto 0);
+        signFlag: IN STD_LOGIC;
+        aluout: OUT STD_LOGIC_VECTOR (31 downto 0);
+        negative: OUT STD_LOGIC;
+        overflow, zero: OUT STD_LOGIC);
+  end component;
+
+  component mux32BitThreeToOne
+    port ( 
+        val0, val1, val2: IN STD_LOGIC_VECTOR (31 downto 0);
+        muxEnable: IN STD_LOGIC_VECTOR(1 downto 0);
+        muxOutput: OUT STD_LOGIC_VECTOR (31 downto 0)
+        );
+  end component;
+    
+  component mux5Bit
+  port ( 
+        val0, val1: IN STD_LOGIC_VECTOR (4 downto 0);
+        muxEnable: IN STD_LOGIC;
+        muxOutput: OUT STD_LOGIC_VECTOR (4 downto 0)
+        );
+  end component;
+  
+  component mux1Bit
+  port ( 
+        val0, val1: IN STD_LOGIC;
+        muxEnable: IN STD_LOGIC;
+        muxOutput: OUT STD_LOGIC
+        );
+  end component;
+
+  --------------------------- EX/MEM PIPELINE REGISTER ----------------------------------------------
+  component pipelineRegister_EX_MEM
+  port(
+    clk : in STD_LOGIC;
+    rst_n : in STD_LOGIC;
+    regWriteEnable : in STD_LOGIC;
+ 
+          EX_WB : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+          EX_M : IN STD_LOGIC;
+
+          EX_regDst: IN STD_LOGIC;
+          EX_extOp: IN STD_LOGIC;
+          EX_branch: IN STD_LOGIC;
+          EX_memRead: IN STD_LOGIC;
+          EX_memToReg: IN STD_LOGIC;
+          EX_ALUCtr: IN STD_LOGIC_VECTOR(3 downto 0);
+          EX_memWrite: IN STD_LOGIC;
+          EX_ALUSrc: IN STD_LOGIC;
+          EX_regWrite: IN STD_LOGIC;
+          EX_j_flag: IN STD_LOGIC;
+          EX_jal_flag: IN STD_LOGIC;
+          EX_jr_flag: IN STD_LOGIC;
+          EX_lui_flag: IN STD_LOGIC;
+          EX_slt_u_flag: IN STD_LOGIC;
+          EX_pc_write_enable: IN STD_LOGIC;
+          EX_bne_flag: IN STD_LOGIC;
+          EX_lw_flag: IN STD_LOGIC;
+          EX_halt_flag: IN STD_LOGIC;
+          EX_shamt_flag: IN STD_LOGIC;
+          EX_sign_flag: IN STD_LOGIC;
+          
+          EX_instruction: in STD_LOGIC_VECTOR(31 downto 0);
+          EX_Data1 : IN STD_LOGIC_VECTOR(31 downto 0);
+          EX_Data2 : IN STD_LOGIC_VECTOR(31 downto 0);
+          EX_luiShifted : IN STD_LOGIC_VECTOR(31 downto 0);
+          EX_nextPC : IN STD_LOGIC_VECTOR(31 downto 0);
+          EX_branchAddr : IN STD_LOGIC_VECTOR(31 downto 0);
+          EX_jumpAddr : IN STD_LOGIC_VECTOR(31 downto 0);
+
+          EX_zeroFlagMuxed : IN STD_LOGIC;
+          EX_negativeFlag : IN STD_LOGIC;
+          EX_ALURes : IN STD_LOGIC_VECTOR(31 downto 0);
+
+        
+          MEM_WB : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+          MEM_M : OUT STD_LOGIC;
+          
+          MEM_regDst: out STD_LOGIC;
+          MEM_extOp: out STD_LOGIC;
+          MEM_branch: out STD_LOGIC;
+          MEM_memRead: out STD_LOGIC;
+          MEM_memToReg: out STD_LOGIC;
+          MEM_ALUCtr: out STD_LOGIC_VECTOR(3 downto 0);
+          MEM_memWrite: out STD_LOGIC;
+          MEM_ALUSrc: out STD_LOGIC;
+          MEM_regWrite: out STD_LOGIC;
+          MEM_j_flag: out STD_LOGIC;
+          MEM_jal_flag: out STD_LOGIC;
+          MEM_jr_flag: out STD_LOGIC;
+          MEM_lui_flag: out STD_LOGIC;
+       	  MEM_slt_u_flag: out STD_LOGIC;
+       	  MEM_pc_write_enable: out STD_LOGIC;
+       	  MEM_bne_flag: out STD_LOGIC;
+       	  MEM_lw_flag: out STD_LOGIC;
+       	  MEM_halt_flag: out STD_LOGIC;
+       	  MEM_shamt_flag: out STD_LOGIC;
+       	  MEM_sign_flag: out STD_LOGIC;
+
+          MEM_instruction: OUT STD_LOGIC_VECTOR(31 downto 0);
+          MEM_Data1 : OUT STD_LOGIC_VECTOR(31 downto 0);
+          MEM_Data2 : OUT STD_LOGIC_VECTOR(31 downto 0);
+          MEM_luiShifted : OUT STD_LOGIC_VECTOR(31 downto 0);
+          MEM_nextPC : OUT STD_LOGIC_VECTOR(31 downto 0);
+          MEM_branchAddr : OUT STD_LOGIC_VECTOR(31 downto 0);
+          MEM_jumpAddr : OUT STD_LOGIC_VECTOR(31 downto 0);	
+
+          MEM_zeroFlagMuxed : OUT STD_LOGIC;
+          MEM_negativeFlag : OUT STD_LOGIC;
+          MEM_ALURes : OUT STD_LOGIC_VECTOR(31 downto 0)
+    );
+
+  end component;
+  
+  --------------------------- COMPONENTS FOR THE MEMORY BLOCK -----------------------------
+ component ander
+    port ( 
+        input1: IN STD_LOGIC;
+        input2: IN STD_LOGIC;
+        andOutput: OUT STD_LOGIC
+        );
+  end component;
+
+  --------------------------- MEM/WB PIPELINE REGISTER ----------------------------------------------
+  component pipelineRegister_MEM_WB
+  port(
+    clk : in STD_LOGIC;
+    rst_n : in STD_LOGIC;
+    regWriteEnable : in STD_LOGIC;
+
+
+          MEM_WB : in STD_LOGIC_VECTOR(1 DOWNTO 0);
+          
+          MEM_regDst: in STD_LOGIC;
+          MEM_extOp: in STD_LOGIC;
+          MEM_branch: in STD_LOGIC;
+          MEM_memRead: in STD_LOGIC;
+          MEM_memToReg: in STD_LOGIC;
+          MEM_ALUCtr: in STD_LOGIC_VECTOR(3 downto 0);
+          MEM_memWrite: in STD_LOGIC;
+          MEM_ALUSrc: in STD_LOGIC;
+          MEM_regWrite: in STD_LOGIC;
+          MEM_j_flag: in STD_LOGIC;
+          MEM_jal_flag: in STD_LOGIC;
+          MEM_jr_flag: in STD_LOGIC;
+          MEM_lui_flag: in STD_LOGIC;
+	  MEM_slt_u_flag: in STD_LOGIC;
+	  MEM_pc_write_enable: in STD_LOGIC;
+	  MEM_bne_flag: in STD_LOGIC;
+	  MEM_lw_flag: in STD_LOGIC;
+	  MEM_halt_flag: in STD_LOGIC;
+	  MEM_shamt_flag: in STD_LOGIC;
+	  MEM_sign_flag: in STD_LOGIC;
+
+          MEM_luiShifted : in STD_LOGIC_VECTOR(31 downto 0);
+          MEM_nextPC : in STD_LOGIC_VECTOR(31 downto 0);
+
+          MEM_negativeFlag : in STD_LOGIC;
+          MEM_ALURes : in STD_LOGIC_VECTOR(31 downto 0);
+
+          MEM_readData : in STD_LOGIC_VECTOR(31 downto 0);
+
+
+          WB_WB : out STD_LOGIC_VECTOR(1 DOWNTO 0);
+          
+          WB_regDst: out STD_LOGIC;
+          WB_extOp: out STD_LOGIC;
+          WB_branch: out STD_LOGIC;
+          WB_memRead: out STD_LOGIC;
+          WB_memToReg: out STD_LOGIC;
+          WB_ALUCtr: out STD_LOGIC_VECTOR(3 downto 0);
+          WB_memWrite: out STD_LOGIC;
+          WB_ALUSrc: out STD_LOGIC;
+          WB_regWrite: out STD_LOGIC;
+          WB_j_flag: out STD_LOGIC;
+          WB_jal_flag: out STD_LOGIC;
+          WB_jr_flag: out STD_LOGIC;
+          WB_lui_flag: out STD_LOGIC;
+	  WB_slt_u_flag: out STD_LOGIC;
+	  WB_pc_write_enable: out STD_LOGIC;
+	  WB_bne_flag: out STD_LOGIC;
+	  WB_lw_flag: out STD_LOGIC;
+	  WB_halt_flag: out STD_LOGIC;
+	  WB_shamt_flag: out STD_LOGIC;
+	  WB_sign_flag: out STD_LOGIC;
+
+          WB_luiShifted : out STD_LOGIC_VECTOR(31 downto 0);
+          WB_nextPC : out STD_LOGIC_VECTOR(31 downto 0);
+
+          WB_negativeFlag : out STD_LOGIC;
+          WB_ALURes : out STD_LOGIC_VECTOR(31 downto 0);
+
+          WB_readData : out STD_LOGIC_VECTOR(31 downto 0)
+    );
+
+  end component;  
+  
+
+  
+---------- ignore this set of signals and jump below to the new signals, these will be phased out --------  
+  signal j_flagSig, jal_flagSig, jr_flagSig, pc_write_enableSig, regDstSig, regWriteSig, ALUSrcSig, bne_flagSig, memToRegSig, lui_flagSig, slt_u_flagSig : STD_LOGIC;
+  signal memWriteSig, extOpSig, branchSig, memReadSig, lw_flagSig, halt_flagSig, sign_flagSig, shamt_flagSig : STD_LOGIC;
+  signal ALUCtrSig : STD_LOGIC_VECTOR(3 downto 0);
+  signal imm16PCExtendedSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal nextPCSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal currPCSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal branchAddrSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal pcSrcMuxOutputSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal branchZeroAnderSig : STD_LOGIC;
+  signal updatedPCSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal instructionSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal jjalOrResult : STD_LOGIC;
+  signal jjalMuxOutputSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal jrFlagMuxOutputSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal registerData1Sig : STD_LOGIC_VECTOR(31 downto 0);
+  signal registerData2Sig : STD_LOGIC_VECTOR(31 downto 0);
+  signal ramdOutputSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal regDstMuxOutput : STD_LOGIC_VECTOR(4 downto 0);
+  signal jalFlagRegisterFileMuxOutput : STD_LOGIC_VECTOR(4 downto 0);
+  signal registerFileWriteDataSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal imm16ALUExtendedSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal ALUSrcMuxOutput : STD_LOGIC_VECTOR(31 downto 0);
+  signal shamtExtendedSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal ALUInputBSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal aluOutputSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal aluNegativeFlagSig : STD_LOGIC;
+  signal aluZeroFlagSig, aluZeroFlagInvertedSig : STD_LOGIC;
+  signal aluOverflowFlagSig : STD_LOGIC;
+  signal zeroAndInvertedZeroMuxOutput : STD_LOGIC;
+  signal ramdInputAddr : STD_LOGIC_VECTOR(31 downto 0);
+  signal extendedDumpAddr : STD_LOGIC_VECTOR(31 downto 0);
+  signal luiShiftedSig : STD_LOGIC_VECTOR(31 downto 0);
+  signal memToRegMuxOutput : STD_LOGIC_VECTOR(31 downto 0);
+  signal luiFlagMuxOutput : STD_LOGIC_VECTOR(31 downto 0);
+  signal sltuFlagMuxOutput : STD_LOGIC_VECTOR(31 downto 0);
+--  signal jalFlagMuxOutput : STD_LOGIC_VECTOR(31 downto 0);
+  signal extendedAluNegativeFlag : STD_LOGIC_VECTOR(31 downto 0);
+  signal haltFlagSig : STD_LOGIC;
+  signal haltFlagOrSig : STD_LOGIC;
+  signal pcwe : STD_LOGIC;
+  signal imm16PCExtendedShifted : STD_LOGIC_VECTOR(31 downto 0);
+  
+  
+----------------------- IF generated signals -----------------
+  signal IFSignal_pcSrcMuxOutput : STD_LOGIC_VECTOR(31 downto 0);
+  signal IFSignal_instruction : STD_LOGIC_VECTOR(31 downto 0);
+  signal IFSignal_jjalOrResult  : STD_LOGIC;
+  signal IFSignal_jjalMuxOutput  : STD_LOGIC_VECTOR(31 downto 0);
+  signal IFSignal_jrFlagMuxOutput : STD_LOGIC_VECTOR(31 downto 0);
+  signal IFSignal_currProgramCounter : STD_LOGIC_VECTOR(31 downto 0);
+  signal IFSignal_pcWriteEnable : STD_LOGIC;
+  
+----------------------- ID generated signals -----------------
+  signal IDSignal_regDst: STD_LOGIC;
+  signal IDSignal_extOp: STD_LOGIC;
+  signal IDSignal_branch: STD_LOGIC;
+  signal IDSignal_memRead: STD_LOGIC;
+  signal IDSignal_memToReg: STD_LOGIC;
+  signal IDSignal_ALUCtr: STD_LOGIC_VECTOR(3 downto 0);
+  signal IDSignal_memWrite: STD_LOGIC;
+  signal IDSignal_ALUSrc: STD_LOGIC;
+  signal IDSignal_regWrite: STD_LOGIC;
+  signal IDSignal_j_flag: STD_LOGIC;
+  signal IDSignal_jal_flag: STD_LOGIC;
+  signal IDSignal_jr_flag: STD_LOGIC;
+  signal IDSignal_lui_flag: STD_LOGIC;
+  signal IDSignal_slt_u_flag: STD_LOGIC;
+  signal IDSignal_pc_write_enable: STD_LOGIC;
+  signal IDSignal_bne_flag: STD_LOGIC;
+  signal IDSignal_lw_flag: STD_LOGIC;
+  signal IDSignal_halt_flag: STD_LOGIC;
+  signal IDSignal_shamt_flag: STD_LOGIC;
+  signal IDSignal_sign_flag: STD_LOGIC;
+
+  signal IDSignal_instruction: STD_LOGIC_VECTOR(31 downto 0);
+  signal IDSignal_Data1 : STD_LOGIC_VECTOR(31 downto 0);
+  signal IDSignal_Data2 : STD_LOGIC_VECTOR(31 downto 0);
+  signal IDSignal_luiShifted : STD_LOGIC_VECTOR(31 downto 0);
+  signal IDSignal_nextPC : STD_LOGIC_VECTOR(31 downto 0);
+  signal IDSignal_branchAddr : STD_LOGIC_VECTOR(31 downto 0);
+  signal IDSignal_jumpAddr : STD_LOGIC_VECTOR(31 downto 0);
+
+  signal IDSignal_currProgramCounter : STD_LOGIC_VECTOR(31 downto 0);
+  signal IDSignal_imm16PCExtendedShiftedBy2 : STD_LOGIC_VECTOR(31 downto 0);
+  signal IDSignal_imm16PCExtended : STD_LOGIC_VECTOR(31 downto 0);
+  
+  signal IDSignal_WB : STD_LOGIC_VECTOR(1 downto 0);
+  signal IDSignal_M : STD_LOGIC;
+  signal IDSignal_EX : STD_LOGIC;
+  
+----------------------- EX generated signals -----------------
+  signal EXSignal_regDst: STD_LOGIC;
+  signal EXSignal_extOp: STD_LOGIC;
+  signal EXSignal_branch: STD_LOGIC;
+  signal EXSignal_memRead: STD_LOGIC;
+  signal EXSignal_memToReg: STD_LOGIC;
+  signal EXSignal_ALUCtr: STD_LOGIC_VECTOR(3 downto 0);
+  signal EXSignal_memWrite: STD_LOGIC;
+  signal EXSignal_ALUSrc: STD_LOGIC;
+  signal EXSignal_regWrite: STD_LOGIC;
+  signal EXSignal_j_flag: STD_LOGIC;
+  signal EXSignal_jal_flag: STD_LOGIC;
+  signal EXSignal_jr_flag: STD_LOGIC;
+  signal EXSignal_lui_flag: STD_LOGIC;
+  signal EXSignal_slt_u_flag: STD_LOGIC;
+  signal EXSignal_pc_write_enable: STD_LOGIC;
+  signal EXSignal_bne_flag: STD_LOGIC;
+  signal EXSignal_lw_flag: STD_LOGIC;
+  signal EXSignal_halt_flag: STD_LOGIC;
+  signal EXSignal_shamt_flag: STD_LOGIC;
+  signal EXSignal_sign_flag: STD_LOGIC;
+
+  signal EXSignal_instruction: STD_LOGIC_VECTOR(31 downto 0);
+  signal EXSignal_Data1 : STD_LOGIC_VECTOR(31 downto 0);
+  signal EXSignal_Data2 : STD_LOGIC_VECTOR(31 downto 0);
+  signal EXSignal_luiShifted : STD_LOGIC_VECTOR(31 downto 0);
+  signal EXSignal_nextPC : STD_LOGIC_VECTOR(31 downto 0);
+  signal EXSignal_branchAddr : STD_LOGIC_VECTOR(31 downto 0);
+  signal EXSignal_jumpAddr : STD_LOGIC_VECTOR(31 downto 0);
+
+  signal EXSignal_WB : STD_LOGIC_VECTOR(1 downto 0);
+  signal EXSignal_M : STD_LOGIC;
+  signal EXSignal_EX : STD_LOGIC;
+----------------------- MEM generated signals -----------------
+  signal MEMSignal_regDst: STD_LOGIC;
+  signal MEMSignal_extOp: STD_LOGIC;
+  signal MEMSignal_branch: STD_LOGIC;
+  signal MEMSignal_memRead: STD_LOGIC;
+  signal MEMSignal_memToReg: STD_LOGIC;
+  signal MEMSignal_ALUCtr: STD_LOGIC_VECTOR(3 downto 0);
+  signal MEMSignal_memWrite: STD_LOGIC;
+  signal MEMSignal_ALUSrc: STD_LOGIC;
+  signal MEMSignal_regWrite: STD_LOGIC;
+  signal MEMSignal_j_flag: STD_LOGIC;
+  signal MEMSignal_jal_flag: STD_LOGIC;
+  signal MEMSignal_jr_flag: STD_LOGIC;
+  signal MEMSignal_lui_flag: STD_LOGIC;
+  signal MEMSignal_slt_u_flag: STD_LOGIC;
+  signal MEMSignal_pc_write_enable: STD_LOGIC;
+  signal MEMSignal_bne_flag: STD_LOGIC;
+  signal MEMSignal_lw_flag: STD_LOGIC;
+  signal MEMSignal_halt_flag: STD_LOGIC;
+  signal MEMSignal_shamt_flag: STD_LOGIC;
+  signal MEMSignal_sign_flag: STD_LOGIC;
+
+  signal MEMSignal_instruction: STD_LOGIC_VECTOR(31 downto 0);
+  signal MEMSignal_Data1 : STD_LOGIC_VECTOR(31 downto 0);
+  signal MEMSignal_Data2 : STD_LOGIC_VECTOR(31 downto 0);
+  signal MEMSignal_luiShifted : STD_LOGIC_VECTOR(31 downto 0);
+  signal MEMSignal_nextPC : STD_LOGIC_VECTOR(31 downto 0);
+  signal MEMSignal_branchAddr : STD_LOGIC_VECTOR(31 downto 0);
+  signal MEMSignal_jumpAddr : STD_LOGIC_VECTOR(31 downto 0);
+  signal MEMSignal_branchFlagZeroFlagAnded : STD_LOGIC;
+  
+  signal MEMSignal_WB : STD_LOGIC_VECTOR(1 downto 0);
+  signal MEMSignal_M : STD_LOGIC;
+
+----------------------- WB generated signals -----------------
+  signal WBSignal_regDst: STD_LOGIC;
+  signal WBSignal_extOp: STD_LOGIC;
+  signal WBSignal_branch: STD_LOGIC;
+  signal WBSignal_memRead: STD_LOGIC;
+  signal WBSignal_memToReg: STD_LOGIC;
+  signal WBSignal_ALUCtr: STD_LOGIC_VECTOR(3 downto 0);
+  signal WBSignal_memWrite: STD_LOGIC;
+  signal WBSignal_ALUSrc: STD_LOGIC;
+  signal WBSignal_regWrite: STD_LOGIC;
+  signal WBSignal_j_flag: STD_LOGIC;
+  signal WBSignal_jal_flag: STD_LOGIC;
+  signal WBSignal_jr_flag: STD_LOGIC;
+  signal WBSignal_lui_flag: STD_LOGIC;
+  signal WBSignal_slt_u_flag: STD_LOGIC;
+  signal WBSignal_pc_write_enable: STD_LOGIC;
+  signal WBSignal_bne_flag: STD_LOGIC;
+  signal WBSignal_lw_flag: STD_LOGIC;
+  signal WBSignal_halt_flag: STD_LOGIC;
+  signal WBSignal_shamt_flag: STD_LOGIC;
+  signal WBSignal_sign_flag: STD_LOGIC;
+
+  signal WBSignal_Data2 : STD_LOGIC_VECTOR(31 downto 0);
+  signal WBSignal_luiShifted : STD_LOGIC_VECTOR(31 downto 0);
+  signal WBSignal_nextPC : STD_LOGIC_VECTOR(31 downto 0);
+
+  signal WBSignal_WB : STD_LOGIC_VECTOR(1 downto 0);
+  signal WBSignal_M : STD_LOGIC;
+
+begin
+  
+  
+   ----------------- START OF INSTRUCTION FETCH STAGE ----------------------- 
+   
+   pcSrcMux : mux32Bit
+   port map( 
+        val0       => MEMSignal_jumpAddr,
+        val1       => MEMSignal_branchAddr,
+        muxEnable  => MEMSignal_branchFlagZeroFlagAnded,
+        muxOutput  => IFSignal_pcSrcMuxOutput
+        );
+
+   JJALOrer : orer
+   port map( 
+        input1    => MEMSignal_j_flag,
+        input2    => MEMSignal_jal_flag,
+        orOutput  => IFSignal_jjalOrResult
+        );  
+
+   JJALFlagPCMux : mux32Bit
+   port map( 
+        val0       => IFSignal_pcSrcMuxOutput,
+        val1       => MEMSignal_jumpAddr,
+        muxEnable  => IFSignal_jjalOrResult,
+        muxOutput  => IFSignal_jjalMuxOutput
+        );
+      
+        
+   jrFlagMux :  mux32Bit
+   port map( 
+        val0       => IFSignal_jjalMuxOutput,
+        val1       => MEMSignal_Data1,
+        muxEnable  => MEMSignal_jr_flag,
+        muxOutput  => IFSignal_jrFlagMuxOutput
+        ); 
+        
+   pcRegBlock : pcReg
+   port map(
+       clk             => CLK,
+       rst_n           => nReset,
+       pcWriteEnable   => IFSignal_pcWriteEnable,   ---------- needs to be connected to pcWriteEnableControl block!!!!
+       nextPC          => IFSignal_jrFlagMuxOutput,
+       programCounter  => IFSignal_currProgramCounter
+       );
+
+-------------- END OF INSTRUCTION FETCH STAGE ---------------------------------------
+
+  --------------------------- IF/ID PIPELINE REGISTER ----------------------------------------------
+  IFIDpipeline : pipelineRegister_IF_ID
+  port map(
+    clk                => CLK,
+    rst_n              => nReset,
+    regWriteEnable     => '1',      ------------ needs to be hooked upto the memory arbiter!!!!!!!!!!!!!
+    
+    IF_instruction     => IFSignal_instruction,
+    IF_programCounter  => IFSignal_currProgramCounter,
+    
+    ID_instruction     => IDSignal_instruction,
+    ID_programCounter  => IDSignal_currProgramCounter
+    );
+
+---------- START OF INSTRUCTION DECODE STAGE ----------------------------------------
+  controllerBlock : controller
+  port map( 
+          opcode           => IDSignal_instruction(31 downto 26),
+          function_code    => IDSignal_instruction(5 downto 0),
+
+          regDst           => IDSignal_regDst,
+          extOp            => IDSignal_extOp,
+          branch           => IDSignal_branch,
+          memRead          => IDSignal_memRead,
+          memToReg         => IDSignal_memToReg,
+          ALUCtr           => IDSignal_ALUCtr,
+          memWrite         => IDSignal_memWrite,
+          ALUSrc           => IDSignal_ALUSrc,
+          regWrite         => IDSignal_regWrite,
+          j_flag           => IDSignal_j_flag,
+          jal_flag         => IDSignal_jal_flag,
+          jr_flag          => IDSignal_jr_flag,
+          lui_flag         => IDSignal_lui_flag,
+          slt_u_flag       => IDSignal_slt_u_flag,
+          pc_write_enable  => IDSignal_pc_write_enable,
+          bne_flag         => IDSignal_bne_flag,
+          lw_flag          => IDSignal_lw_flag,
+          halt_flag        => IDSignal_halt_flag,
+          shamt_flag       => IDSignal_shamt_flag,
+          sign_flag        => IDSignal_sign_flag
+	);
+	
+	registerFileBlock : registerFile
+	port map
+	(
+		-- Write data input port
+		wdat    => registerFileWriteDataSig,
+		-- Select which register to write
+		wsel    => jalFlagRegisterFileMuxOutput,
+		-- Write Enable for entire register file
+		wen	    => regWriteSig,
+		-- clock, positive edge triggered
+		clk     => CLK,
+		-- REMEMBER: nReset-> '0' = RESET, '1' = RUN
+		nReset  => nReset,
+		-- Select which register to read on rdat1 
+		rsel1   => instructionSig(25 downto 21),
+		-- Select which register to read on rdat2
+		rsel2	  => instructionSig(20 downto 16),
+		-- read port 1
+		rdat1   => registerData1Sig,
+		-- read port 2
+		rdat2	  => registerData2Sig
+		);
+		
+		
+   pcSignExtenderBlock : signExtender
+   port map( 
+        imm16         => IDSignal_instruction(15 downto 0),
+        extOp         => '1', -- should ALWAYS be sign extended
+        signExtended  => IDSignal_imm16PCExtended
+        );   
+        
+   currPCAddBy4 : twoInputAdder
+   port map( 
+        val1    => IDSignal_currProgramCounter,
+        val2    => x"00000004",
+        addRes  => IDSignal_nextPC
+        ); 
+
+   IDSignal_imm16PCExtendedShiftedBy2 <= IDSignal_imm16PCExtended(29 downto 0) & "00";
+
+   nextPCimm16Adder : twoInputAdder
+   port map( 
+        val1    => IDSignal_nextPC,
+        val2    => IDSignal_imm16PCExtendedShiftedBy2,
+        addRes  => IDSignal_branchAddr
+        ); 
+
+   pcUpdateBlock : pcUpdate
+   port map(   
+        programCounter => IDSignal_nextPC,
+        jlabel         => IDSignal_instruction(25 downto 0),
+        updatedPC      => IDSignal_jumpAddr   
+        );  
+
+---------- END OF INSTRUCTION DECODE STAGE ----------------------------------------
+  
+--------------------------- ID/EX PIPELINE REGISTER ----------------------------------------------
+  IDEXpipeline : pipelineRegister_ID_EX
+  port map(
+          clk                => CLK,  
+          rst_n              => nReset,   ---------------------- FINISHED PORT MAPPING UPTIL HERE ---------------
+          regWriteEnable     => '1',
+    
+          ID_WB              => IDSignal_WB,
+          ID_M               => IDSignal_M,
+          ID_EX              => IDSignal_EX,
+
+          ID_regDst          => IDSignal_regDst,
+          ID_extOp           => IDSignal_extOp,
+          ID_branch          => IDSignal_branch,
+          ID_memRead         => IDSignal_memRead,
+          ID_memToReg        => IDSignal_memToReg,
+          ID_ALUCtr          => IDSignal_ALUCtr,
+          ID_memWrite        => IDSignal_memWrite,
+          ID_ALUSrc          => IDSignal_ALUSrc,
+          ID_regWrite        => IDSignal_regWrite,
+          ID_j_flag          => IDSignal_j_flag,
+          ID_jal_flag        => IDSignal_jal_flag,
+          ID_jr_flag         => IDSignal_jr_flag,
+          ID_lui_flag        => IDSignal_lui_flag,
+          ID_slt_u_flag      => IDSignal_slt_u_flag,
+          ID_pc_write_enable => IDSignal_pc_write_enable,
+          ID_bne_flag        => IDSignal_bne_flag,
+          ID_lw_flag         => IDSignal_lw_flag,
+          ID_halt_flag       => IDSignal_halt_flag,
+          ID_shamt_flag      => IDSignal_shamt_flag,
+          ID_sign_flag       => IDSignal_sign_flag,
+          
+          ID_instruction     => IDSignal_instruction,
+          ID_Data1           => IDSignal_Data1,
+          ID_Data2           => IDSignal_Data2,
+          ID_luiShifted      => IDSignal_luiShifted,
+          ID_nextPC          => IDSignal_nextPC,
+          ID_branchAddr      => IDSignal_branchAddr,
+          ID_jumpAddr        => IDSignal_jumpAddr,
+          
+          EX_WB              => EXSignal_WB,
+          EX_M               => EXSignal_M,
+          EX_EX              => EXSignal_EX,
+          
+          EX_regDst          => EXSignal_regDst,
+          EX_extOp           => EXSignal_extOp,
+          EX_branch          => EXSignal_branch,
+          EX_memRead         => EXSignal_memRead,
+          EX_memToReg        => EXSignal_memToReg,
+          EX_ALUCtr          => EXSignal_ALUCtr,
+          EX_memWrite        => EXSignal_memWrite,
+          EX_ALUSrc          => EXSignal_ALUSrc,
+          EX_regWrite        => EXSignal_regWrite,
+          EX_j_flag          => EXSignal_j_flag,
+          EX_jal_flag        => EXSignal_jal_flag,
+          EX_jr_flag         => EXSignal_jr_flag,
+          EX_lui_flag        => EXSignal_lui_flag,
+          EX_slt_u_flag      => EXSignal_slt_u_flag,
+          EX_pc_write_enable => EXSignal_pc_write_enable,
+          EX_bne_flag        => EXSignal_bne_flag,
+          EX_lw_flag         => EXSignal_lw_flag,
+          EX_halt_flag       => EXSignal_halt_flag,
+          EX_shamt_flag      => EXSignal_shamt_flag,
+          EX_sign_flag       => EXSignal_sign_flag,
+
+          EX_instruction     => EXSignal_instruction,
+          EX_Data1           => EXSignal_Data1,
+          EX_Data2           => EXSignal_Data2,
+          EX_luiShifted      => EXSignal_luiShifted,
+          EX_nextPC          => EXSignal_nextPC,
+          EX_branchAddr      => EXSignal_branchAddr,
+          EX_jumpAddr        => EXSignal_jumpAddr
+    );
+
+      
+---------- START OF EXECUTE STAGE ----------------------------------------
+  regDstMux : mux5Bit
+   port map( 
+        val0       => ID_instruction(15 downto 11),
+        val1       => ID_instruction(20 downto 16),
+        muxEnable  => ID_regDst,
+        muxOutput  => EXSignal_regDst
+        ); 
+
+  jalFlagRegisterFileMux :  mux5Bit
+   port map( 
+        val0       => EXSignal_regDst,
+        val1       => "11111",
+        muxEnable  => IDSignal_jal_flag,
+        muxOutput  => ID_jal_flag
+        ); 
+  ALUInputAThreeToOneMux: mux32BitThreeToOne
+  port map( 
+        val0, val1, val2: IN STD_LOGIC_VECTOR (31 downto 0);
+        muxEnable: IN STD_LOGIC_VECTOR(1 downto 0);
+        muxOutput: OUT STD_LOGIC_VECTOR (31 downto 0)
+        );
+
+  ALUInputBThreeToOneMux: mux32BitThreeToOne
+  port map( 
+        val0, val1, val2: IN STD_LOGIC_VECTOR (31 downto 0);
+        muxEnable: IN STD_LOGIC_VECTOR(1 downto 0);
+        muxOutput: OUT STD_LOGIC_VECTOR (31 downto 0)
+        );
+        
+	------------------------- END OF INSTRUCTION DECODE STAGE ----------------------------------
+		
+	------------------------- START OF EXECUTE STAGE  ----------------------------------
+	aluSignExtenderBlock : signExtender
+  port map( 
+        imm16         => instructionSig(15 downto 0),
+        extOp         => extOpSig,
+        signExtended  => imm16ALUExtendedSig
+        );
+        
+  ALUSrcMux :  mux32Bit
+  port map( 
+        val0       => registerData2Sig,
+        val1       => imm16ALUExtendedSig,
+        muxEnable  => ALUSrcSig,
+        muxOutput  => ALUSrcMuxOutput
+        );  
+        
+  shamtExtendedSig <= "000000000000000000000000000" & instructionSig(10 downto 6);
+    
+  shamtFlagMux : mux32Bit
+  port map( 
+        val0       => ALUSrcMuxOutput,
+        val1       => shamtExtendedSig,
+        muxEnable  => shamt_flagSig,
+        muxOutput  => ALUInputBSig
+        ); 
+        
+  ALUBlock : alu
+  port map( 
+        opcode    => ALUCtrSig,
+        A         => registerData1Sig,
+        B         => ALUInputBSig,
+        signFlag  => sign_flagSig,
+        aluout    => aluOutputSig,
+        negative  => aluNegativeFlagSig,
+        overflow  => aluOverflowFlagSig,
+        zero      => aluZeroFlagSig
+        );
+    
+  aluZeroFlagInvertedSig <= not aluZeroFlagSig;
+    
+  zeroAndInvertedZeroMux : mux1Bit
+  port map( 
+        val0       => aluZeroFlagSig,
+        val1       => aluZeroFlagInvertedSig,
+        muxEnable  => bne_flagSig,
+        muxOutput  => zeroAndInvertedZeroMuxOutput
+        ); 
+  
+  ---------------------- END OF EXECUTE STAGE ---------------------------------------------
+  
+  ---------------------- START OF MEMORY STAGE ---------------------------------------      
+  branchAndZeroAnder : ander
+  port map( 
+        input1     => branchSig,
+        input2     => zeroAndInvertedZeroMuxOutput,
+        andOutput  => branchZeroAnderSig
+        );     
+                
+  luiShifterBlock : luiShifter
+  port map( 
+        imm16       => instructionSig(15 downto 0),
+        shiftedOut  => luiShiftedSig
+        );    
+  
+  -------------------- END OF MEMORY STAGE ----------------------------------------
+  
+  -------------------- START OF WRITE BACK STAGE ----------------------------------
+  memToRegMux : mux32Bit
+  port map( 
+        val0       => aluOutputSig,
+        val1       => ramdOutputSig,
+        muxEnable  => memToRegSig,
+        muxOutput  => memToRegMuxOutput
+        );   
+        
+  luiFlagMux : mux32Bit
+  port map( 
+        val0       => memToRegMuxOutput,
+        val1       => luiShiftedSig,
+        muxEnable  => lui_flagSig,
+        muxOutput  => luiFlagMuxOutput
+        );   
+   
+  extendedAluNegativeFlag <= "0000000000000000000000000000000" & aluNegativeFlagSig;
+  
+  sltuFlagMux : mux32Bit
+  port map( 
+        val0       => luiFlagMuxOutput,
+        val1       => extendedAluNegativeFlag,
+        muxEnable  => slt_u_flagSig,
+        muxOutput  => sltuFlagMuxOutput
+        );        
+        
+  jalFlagMux : mux32Bit
+  port map( 
+        val0       => sltuFlagMuxOutput,
+        val1       => nextPCSig,
+        muxEnable  => jal_flagSig,
+        muxOutput  => registerFileWriteDataSig
+        ); 
+  
+  
+  ------------------------ END OF WRITE BACK STAGE -----------------------------------------------
+
+      -- instruction memory address
+--			imemAddr <= currPCSig;
+--			-- instruction data read from memory
+--			imemData <= instructionSig;
+--			-- data memory address
+--			dmemAddr <= ramdInputAddr;
+--			-- data read from memory
+--			dmemDataRead <= ramdOutputSig;
+--			-- data written to memory
+--			dmemDataWrite	<= registerData2Sig;
+  
+end architecture;

@@ -1,0 +1,356 @@
+processing file asmFiles/dateCalculator.asm (1 of 24)
+Reading /package/eda/mg/modeltech_10.1b/modeltech/tcl/vsim/pref.tcl 
+
+# 10.1b
+
+# vsim -do {run 50ms; exit;} -c -wlf dateCalculator.asm.wlf work.tb_cpu 
+# //  ModelSim SE-64 10.1b Apr 26 2012 Linux 2.6.32-358.0.1.el6.x86_64
+# //
+# //  Copyright 1991-2012 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_unsigned(body)
+# Loading ieee.numeric_std(body)
+# Loading ieee.std_logic_textio(body)
+# Loading work.tb_cpu(tb_arch)
+# Loading work.cpu(behavioral)
+# Loading work.mycpu(arch_mycpu)
+# Loading work.cpustaller(arch_cpustaller)
+# Loading work.pcwriteenablecontrol(arch_pcwriteenablecontrol)
+# Loading work.twoinputadder(arch_twoinputadder)
+# Loading work.mux32bit(arch_mux32bit)
+# Loading work.orer(arch_orer)
+# Loading work.pcreg(arch_pcreg)
+# Loading work.pipelineregister_if_id(arch_pipelineregister_if_id)
+# Loading work.controller(arch_controller)
+# Loading work.mux21bitto21bit(arch_mux21bitto21bit)
+# Loading work.registerfile(regfile_arch)
+# Loading work.signextender(arch_signextender)
+# Loading work.pcupdate(arch_pcupdate)
+# Loading work.luishifter(arch_luishifter)
+# Loading work.hazarddetectionunit(arch_hazarddetectionunit)
+# Loading work.pipelineregister_id_ex(arch_pipelineregister_id_ex)
+# Loading work.mux5bit(arch_mux5bit)
+# Loading work.mux32bitthreetoone(arch_mux32bitthreetoone)
+# Loading work.alu(alu_arch)
+# Loading work.mux1bit(arch_mux1bit)
+# Loading work.forwardingunit(arch_forwardingunit)
+# Loading work.pipelineregister_ex_mem(arch_pipelineregister_ex_mem)
+# Loading work.ander(arch_ander)
+# Loading work.pipelineregister_mem_wb(arch_pipelineregister_mem_wb)
+# Loading work.icache(dataflow)
+# Loading work.dcache(struct)
+# Loading work.dcache_ram(struct)
+# Loading work.dcache_ctrl(struct)
+# Loading work.hitcounter(behavioral)
+# Loading work.memoryarbiter(arch_memoryarbiter)
+# Loading work.varlatram(varlatram_arch)
+# Loading work.ram(syn)
+# Loading altera_mf.altera_common_conversion(body)
+# Loading altera_mf.altera_device_families(body)
+# Loading altera_mf.altsyncram(translated)
+# run 50ms 
+# starting memory initialization
+# initialized memory
+# Cycle #32
+# Cycle #64
+# Cycle #96
+# Cycle #128
+# Cycle #160
+# Cycle #192
+# Cycle #224
+# Cycle #256
+# Cycle #288
+# Cycle #320
+# Cycle #352
+# Cycle #384
+# Cycle #416
+# Cycle #448
+# Cycle #480
+# Cycle #512
+# Cycle #544
+# Cycle #576
+# Cycle #608
+# Cycle #640
+# Cycle #672
+# Cycle #704
+# Cycle #736
+# Cycle #768
+# Cycle #800
+# Cycle #832
+# Cycle #864
+# Cycle #896
+# Cycle #928
+# Cycle #960
+# Cycle #992
+# Cycle #1024
+# Cycle #1056
+# Cycle #1088
+# Cycle #1120
+# Halted, cycles=1150
+# writing address 0
+# writing address 512
+# writing address 1024
+# writing address 1536
+# writing address 2048
+# writing address 2560
+# writing address 3072
+# writing address 3584
+# writing address 4096
+# writing address 4608
+# writing address 5120
+# writing address 5632
+# writing address 6144
+# writing address 6656
+# writing address 7168
+# writing address 7680
+# writing address 8192
+# writing address 8704
+# writing address 9216
+# writing address 9728
+# writing address 10240
+# writing address 10752
+# writing address 11264
+# writing address 11776
+# writing address 12288
+# writing address 12800
+# writing address 13312
+# writing address 13824
+# writing address 14336
+# writing address 14848
+# writing address 15360
+# writing address 15872
+# writing address 16384
+# writing address 16896
+# writing address 17408
+# writing address 17920
+# writing address 18432
+# writing address 18944
+# writing address 19456
+# writing address 19968
+# writing address 20480
+# writing address 20992
+# writing address 21504
+# writing address 22016
+# writing address 22528
+# writing address 23040
+# writing address 23552
+# writing address 24064
+# writing address 24576
+# writing address 25088
+# writing address 25600
+# writing address 26112
+# writing address 26624
+# writing address 27136
+# writing address 27648
+# writing address 28160
+# writing address 28672
+# writing address 29184
+# writing address 29696
+# writing address 30208
+# writing address 30720
+# writing address 31232
+# writing address 31744
+# writing address 32256
+# dumped memory
+#  exit 
+419 instructions
+50 words loaded from meminit.hex
+Starting simulation...
+
+HALT executed(Core 1).
+Done simulating...
+
+Instruction Breakdown:
+
+	  SLL:   63 (15.04%)
+	  BEQ:  191 (45.58%)
+	 ADDIU:    9 (2.15%)
+	 ANDI:   65 (15.51%)
+	  ORI:    9 (2.15%)
+	  SRL:   63 (15.04%)
+	   LW:    4 (0.95%)
+	   SW:    5 (1.19%)
+	 HALT:    1 (0.24%)
+	 ADDU:    7 (1.67%)
+	 SUBU:    2 (0.48%)
+	 TOTAL:  419
+
+	PC: 000000C0
+
+General Purpose Registers:
+	R 0: 00000000	R 1: 00000000	R 2: 00000000	R 3: 00000000
+	R 4: 00001274	R 5: 00000000	R 6: 00000000	R 7: 0000111C
+	R 8: 00000000	R 9: 0000014A	R10: 000007DC	R11: 0000000C
+	R12: 0000000E	R13: 00000000	R14: 00000000	R15: 00003FF8
+	R16: 00000000	R17: 00000000	R18: 00000000	R19: 00000000
+	R20: 00000000	R21: 00000000	R22: 00000000	R23: 00000000
+	R24: 00000000	R25: 00000000	R26: 00000000	R27: 00000000
+	R28: 00000000	R29: 00003FFC	R30: 00000000	R31: 00000000
+--- memout.hex	2013-03-21 11:42:07.797216337 -0400
++++ memdump.hex	2013-03-21 11:42:10.055273091 -0400
+@@ -46,7 +46,6 @@
+ :04002D0027BDFFFCF0
+ :04002E00AFA400007B
+ :04002F00FFFFFFFFD1
+-:040C400000000007A9
+ :040FFD000000000EE2
+ :040FFE000000014AA4
+ :040FFF000000127468
+processing file asmFiles/fib.asm (2 of 24)
+Reading /package/eda/mg/modeltech_10.1b/modeltech/tcl/vsim/pref.tcl 
+
+# 10.1b
+
+# vsim -do {run 50ms; exit;} -c -wlf fib.asm.wlf work.tb_cpu 
+# //  ModelSim SE-64 10.1b Apr 26 2012 Linux 2.6.32-358.0.1.el6.x86_64
+# //
+# //  Copyright 1991-2012 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_unsigned(body)
+# Loading ieee.numeric_std(body)
+# Loading ieee.std_logic_textio(body)
+# Loading work.tb_cpu(tb_arch)
+# Loading work.cpu(behavioral)
+# Loading work.mycpu(arch_mycpu)
+# Loading work.cpustaller(arch_cpustaller)
+# Loading work.pcwriteenablecontrol(arch_pcwriteenablecontrol)
+# Loading work.twoinputadder(arch_twoinputadder)
+# Loading work.mux32bit(arch_mux32bit)
+# Loading work.orer(arch_orer)
+# Loading work.pcreg(arch_pcreg)
+# Loading work.pipelineregister_if_id(arch_pipelineregister_if_id)
+# Loading work.controller(arch_controller)
+# Loading work.mux21bitto21bit(arch_mux21bitto21bit)
+# Loading work.registerfile(regfile_arch)
+# Loading work.signextender(arch_signextender)
+# Loading work.pcupdate(arch_pcupdate)
+# Loading work.luishifter(arch_luishifter)
+# Loading work.hazarddetectionunit(arch_hazarddetectionunit)
+# Loading work.pipelineregister_id_ex(arch_pipelineregister_id_ex)
+# Loading work.mux5bit(arch_mux5bit)
+# Loading work.mux32bitthreetoone(arch_mux32bitthreetoone)
+# Loading work.alu(alu_arch)
+# Loading work.mux1bit(arch_mux1bit)
+# Loading work.forwardingunit(arch_forwardingunit)
+# Loading work.pipelineregister_ex_mem(arch_pipelineregister_ex_mem)
+# Loading work.ander(arch_ander)
+# Loading work.pipelineregister_mem_wb(arch_pipelineregister_mem_wb)
+# Loading work.icache(dataflow)
+# Loading work.dcache(struct)
+# Loading work.dcache_ram(struct)
+# Loading work.dcache_ctrl(struct)
+# Loading work.hitcounter(behavioral)
+# Loading work.memoryarbiter(arch_memoryarbiter)
+# Loading work.varlatram(varlatram_arch)
+# Loading work.ram(syn)
+# Loading altera_mf.altera_common_conversion(body)
+# Loading altera_mf.altera_device_families(body)
+# Loading altera_mf.altsyncram(translated)
+# run 50ms 
+# starting memory initialization
+# initialized memory
+# Cycle #32
+# Cycle #64
+# Cycle #96
+# Cycle #128
+# Cycle #160
+# Cycle #192
+# Cycle #224
+# Cycle #256
+# Cycle #288
+# Cycle #320
+# Cycle #352
+# Cycle #384
+# Cycle #416
+# Cycle #448
+# Cycle #480
+# Cycle #512
+# Cycle #544
+# Cycle #576
+# Cycle #608
+# Halted, cycles=638
+# writing address 0
+# writing address 512
+# writing address 1024
+# writing address 1536
+# writing address 2048
+# writing address 2560
+# writing address 3072
+# writing address 3584
+# writing address 4096
+# writing address 4608
+# writing address 5120
+# writing address 5632
+# writing address 6144
+# writing address 6656
+# writing address 7168
+# writing address 7680
+# writing address 8192
+# writing address 8704
+# writing address 9216
+# writing address 9728
+# writing address 10240
+# writing address 10752
+# writing address 11264
+# writing address 11776
+# writing address 12288
+# writing address 12800
+# writing address 13312
+# writing address 13824
+# writing address 14336
+# writing address 14848
+# writing address 15360
+# writing address 15872
+# writing address 16384
+# writing address 16896
+# writing address 17408
+# writing address 17920
+# writing address 18432
+# writing address 18944
+# writing address 19456
+# writing address 19968
+# writing address 20480
+# writing address 20992
+# writing address 21504
+# writing address 22016
+# writing address 22528
+# writing address 23040
+# writing address 23552
+# writing address 24064
+# writing address 24576
+# writing address 25088
+# writing address 25600
+# writing address 26112
+# writing address 26624
+# writing address 27136
+# writing address 27648
+# writing address 28160
+# writing address 28672
+# writing address 29184
+# writing address 29696
+# writing address 30208
+# writing address 30720
+# writing address 31232
+# writing address 31744
+# writing address 32256
+# dumped memory
+#  exit 
+# Break key hit 

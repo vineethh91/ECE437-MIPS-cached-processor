@@ -1,0 +1,253 @@
+-----------------------------------------------------------------
+Checker: LEDA v F-2011.09
+Date: Mon Mar 18 19:31:39 2013
+
+
+Command line: /package/eda/synopsys/leda-F-2011.09/amd64/bin/leda source/cpuTest.vhd source/cpu.vhd source/mycpu.vhd source/alu.vhd source/ander.vhd source/bintohexDecoder.vhd source/controller.vhd source/cpuStaller.vhd source/dcache.vhd source/dcache_ctrl.vhd source/dcache_ram.vhd source/forwardingUnit.vhd source/hazardDetectionUnit.vhd source/hitcounter.vhd source/icache.vhd source/inverter.vhd source/luiShifter.vhd source/memoryArbiter.vhd source/mux1Bit.vhd source/mux5Bit.vhd source/mux21BitTo21Bit.vhd source/mux32Bit.vhd source/mux32BitThreeToOne.vhd source/orer.vhd source/pcReg.vhd source/pcUpdate.vhd source/pcWriteEnableControl.vhd source/pipelineRegister_IF_ID.vhd source/pipelineRegister_ID_EX.vhd source/pipelineRegister_EX_MEM.vhd source/pipelineRegister_MEM_WB.vhd source/ram.vhd source/registerFile.vhd source/signExtender.vhd source/twoInputAdder.vhd source/VarLatRAM.vhd -top cpuTest 
+
+-----------------------------------------------------------------
+Environment variables:
+LEDA_PATH /package/eda/synopsys/leda-F-2011.09
+LEDA_CONFIG Not defined
+LEDA_RESOURCES Not defined
+search_path Not defined
+link_library Not defined
+leda plibs files: /package/eda/synopsys/leda-F-2011.09/resources/resource_93/plibs
+
+-----------------------------------------------------------------
+
+-----------------------------------------------------------------
+Checker Deselection Pragma summary:
+
+-----------------------------------------------------------------
+--                  VHDL violations                            --
+-----------------------------------------------------------------
+
+	Violations in library /home/ecegrid/a/mg228/ece437/project3/.leda_work 
+
+
+
+Violations per unit:
+	3 violations in unit CPUTEST (/home/ecegrid/a/mg228/ece437/project3/source/cpuTest.vhd)
+	10 violations in unit BEHAVIORAL/CPUTEST (/home/ecegrid/a/mg228/ece437/project3/source/cpuTest.vhd)
+	1 violations in unit CPU (/home/ecegrid/a/mg228/ece437/project3/source/cpu.vhd)
+	2 violations in unit BINTOHEXDECODER (/home/ecegrid/a/mg228/ece437/project3/source/bintohexDecoder.vhd)
+	2 violations in unit CPUSTALLER (/home/ecegrid/a/mg228/ece437/project3/source/cpuStaller.vhd)
+	4 violations in unit STRUCT/DCACHE (/home/ecegrid/a/mg228/ece437/project3/source/dcache.vhd)
+	5 violations in unit STRUCT/DCACHE_CTRL (/home/ecegrid/a/mg228/ece437/project3/source/dcache_ctrl.vhd)
+	1 violations in unit FORWARDINGUNIT (/home/ecegrid/a/mg228/ece437/project3/source/forwardingUnit.vhd)
+	4 violations in unit DATAFLOW/ICACHE (/home/ecegrid/a/mg228/ece437/project3/source/icache.vhd)
+	1 violations in unit INVERTER (/home/ecegrid/a/mg228/ece437/project3/source/inverter.vhd)
+	1 violations in unit ARCH_MEMORYARBITER/MEMORYARBITER (/home/ecegrid/a/mg228/ece437/project3/source/memoryArbiter.vhd)
+	1 violations in unit ARCH_PCREG/PCREG (/home/ecegrid/a/mg228/ece437/project3/source/pcReg.vhd)
+	1 violations in unit PCUPDATE (/home/ecegrid/a/mg228/ece437/project3/source/pcUpdate.vhd)
+	2 violations in unit ARCH_PCWRITEENABLECONTROL/PCWRITEENABLECONTROL (/home/ecegrid/a/mg228/ece437/project3/source/pcWriteEnableControl.vhd)
+	1 violations in unit ARCH_PIPELINEREGISTER_IF_ID/PIPELINEREGISTER_IF_ID (/home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_IF_ID.vhd)
+	1 violations in unit ARCH_PIPELINEREGISTER_ID_EX/PIPELINEREGISTER_ID_EX (/home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_ID_EX.vhd)
+	1 violations in unit ARCH_PIPELINEREGISTER_EX_MEM/PIPELINEREGISTER_EX_MEM (/home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_EX_MEM.vhd)
+	1 violations in unit ARCH_PIPELINEREGISTER_MEM_WB/PIPELINEREGISTER_MEM_WB (/home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_MEM_WB.vhd)
+	1 violations in unit RAM (/home/ecegrid/a/mg228/ece437/project3/source/ram.vhd)
+	1 violations in unit REGFILE_ARCH/REGISTERFILE (/home/ecegrid/a/mg228/ece437/project3/source/registerFile.vhd)
+	1 violations in unit VARLATRAM_ARCH/VARLATRAM (/home/ecegrid/a/mg228/ece437/project3/source/VarLatRAM.vhd)
+Unit without violation:
+	0 violations in unit BEHAVIORAL/CPU (/home/ecegrid/a/mg228/ece437/project3/source/cpu.vhd)
+	0 violations in unit MYCPU (/home/ecegrid/a/mg228/ece437/project3/source/mycpu.vhd)
+	0 violations in unit ARCH_MYCPU/MYCPU (/home/ecegrid/a/mg228/ece437/project3/source/mycpu.vhd)
+	0 violations in unit ALU (/home/ecegrid/a/mg228/ece437/project3/source/alu.vhd)
+	0 violations in unit ALU_ARCH/ALU (/home/ecegrid/a/mg228/ece437/project3/source/alu.vhd)
+	0 violations in unit ANDER (/home/ecegrid/a/mg228/ece437/project3/source/ander.vhd)
+	0 violations in unit ARCH_ANDER/ANDER (/home/ecegrid/a/mg228/ece437/project3/source/ander.vhd)
+	0 violations in unit BINTOHEX/BINTOHEXDECODER (/home/ecegrid/a/mg228/ece437/project3/source/bintohexDecoder.vhd)
+	0 violations in unit CONTROLLER (/home/ecegrid/a/mg228/ece437/project3/source/controller.vhd)
+	0 violations in unit ARCH_CONTROLLER/CONTROLLER (/home/ecegrid/a/mg228/ece437/project3/source/controller.vhd)
+	0 violations in unit ARCH_CPUSTALLER/CPUSTALLER (/home/ecegrid/a/mg228/ece437/project3/source/cpuStaller.vhd)
+	0 violations in unit DCACHE (/home/ecegrid/a/mg228/ece437/project3/source/dcache.vhd)
+	0 violations in unit DCACHE_CTRL (/home/ecegrid/a/mg228/ece437/project3/source/dcache_ctrl.vhd)
+	0 violations in unit DCACHE_RAM (/home/ecegrid/a/mg228/ece437/project3/source/dcache_ram.vhd)
+	0 violations in unit STRUCT/DCACHE_RAM (/home/ecegrid/a/mg228/ece437/project3/source/dcache_ram.vhd)
+	0 violations in unit ARCH_FORWARDINGUNIT/FORWARDINGUNIT (/home/ecegrid/a/mg228/ece437/project3/source/forwardingUnit.vhd)
+	0 violations in unit HAZARDDETECTIONUNIT (/home/ecegrid/a/mg228/ece437/project3/source/hazardDetectionUnit.vhd)
+	0 violations in unit ARCH_HAZARDDETECTIONUNIT/HAZARDDETECTIONUNIT (/home/ecegrid/a/mg228/ece437/project3/source/hazardDetectionUnit.vhd)
+	0 violations in unit HITCOUNTER (/home/ecegrid/a/mg228/ece437/project3/source/hitcounter.vhd)
+	0 violations in unit BEHAVIORAL/HITCOUNTER (/home/ecegrid/a/mg228/ece437/project3/source/hitcounter.vhd)
+	0 violations in unit ICACHE (/home/ecegrid/a/mg228/ece437/project3/source/icache.vhd)
+	0 violations in unit ARCH_INVERTER/INVERTER (/home/ecegrid/a/mg228/ece437/project3/source/inverter.vhd)
+	0 violations in unit LUISHIFTER (/home/ecegrid/a/mg228/ece437/project3/source/luiShifter.vhd)
+	0 violations in unit ARCH_LUISHIFTER/LUISHIFTER (/home/ecegrid/a/mg228/ece437/project3/source/luiShifter.vhd)
+	0 violations in unit MEMORYARBITER (/home/ecegrid/a/mg228/ece437/project3/source/memoryArbiter.vhd)
+	0 violations in unit MUX1BIT (/home/ecegrid/a/mg228/ece437/project3/source/mux1Bit.vhd)
+	0 violations in unit ARCH_MUX1BIT/MUX1BIT (/home/ecegrid/a/mg228/ece437/project3/source/mux1Bit.vhd)
+	0 violations in unit MUX5BIT (/home/ecegrid/a/mg228/ece437/project3/source/mux5Bit.vhd)
+	0 violations in unit ARCH_MUX5BIT/MUX5BIT (/home/ecegrid/a/mg228/ece437/project3/source/mux5Bit.vhd)
+	0 violations in unit MUX21BITTO21BIT (/home/ecegrid/a/mg228/ece437/project3/source/mux21BitTo21Bit.vhd)
+	0 violations in unit ARCH_MUX21BITTO21BIT/MUX21BITTO21BIT (/home/ecegrid/a/mg228/ece437/project3/source/mux21BitTo21Bit.vhd)
+	0 violations in unit MUX32BIT (/home/ecegrid/a/mg228/ece437/project3/source/mux32Bit.vhd)
+	0 violations in unit ARCH_MUX32BIT/MUX32BIT (/home/ecegrid/a/mg228/ece437/project3/source/mux32Bit.vhd)
+	0 violations in unit MUX32BITTHREETOONE (/home/ecegrid/a/mg228/ece437/project3/source/mux32BitThreeToOne.vhd)
+	0 violations in unit ARCH_MUX32BITTHREETOONE/MUX32BITTHREETOONE (/home/ecegrid/a/mg228/ece437/project3/source/mux32BitThreeToOne.vhd)
+	0 violations in unit ORER (/home/ecegrid/a/mg228/ece437/project3/source/orer.vhd)
+	0 violations in unit ARCH_ORER/ORER (/home/ecegrid/a/mg228/ece437/project3/source/orer.vhd)
+	0 violations in unit PCREG (/home/ecegrid/a/mg228/ece437/project3/source/pcReg.vhd)
+	0 violations in unit ARCH_PCUPDATE/PCUPDATE (/home/ecegrid/a/mg228/ece437/project3/source/pcUpdate.vhd)
+	0 violations in unit PCWRITEENABLECONTROL (/home/ecegrid/a/mg228/ece437/project3/source/pcWriteEnableControl.vhd)
+	0 violations in unit PIPELINEREGISTER_IF_ID (/home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_IF_ID.vhd)
+	0 violations in unit PIPELINEREGISTER_ID_EX (/home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_ID_EX.vhd)
+	0 violations in unit PIPELINEREGISTER_EX_MEM (/home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_EX_MEM.vhd)
+	0 violations in unit PIPELINEREGISTER_MEM_WB (/home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_MEM_WB.vhd)
+	0 violations in unit SYN/RAM (/home/ecegrid/a/mg228/ece437/project3/source/ram.vhd)
+	0 violations in unit REGISTERFILE (/home/ecegrid/a/mg228/ece437/project3/source/registerFile.vhd)
+	0 violations in unit SIGNEXTENDER (/home/ecegrid/a/mg228/ece437/project3/source/signExtender.vhd)
+	0 violations in unit ARCH_SIGNEXTENDER/SIGNEXTENDER (/home/ecegrid/a/mg228/ece437/project3/source/signExtender.vhd)
+	0 violations in unit TWOINPUTADDER (/home/ecegrid/a/mg228/ece437/project3/source/twoInputAdder.vhd)
+	0 violations in unit ARCH_TWOINPUTADDER/TWOINPUTADDER (/home/ecegrid/a/mg228/ece437/project3/source/twoInputAdder.vhd)
+	0 violations in unit VARLATRAM (/home/ecegrid/a/mg228/ece437/project3/source/VarLatRAM.vhd)
+
+Violations per file:
+	13 violations in file /home/ecegrid/a/mg228/ece437/project3/source/cpuTest.vhd (143 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/cpu.vhd (141 lines)
+	2 violations in file /home/ecegrid/a/mg228/ece437/project3/source/bintohexDecoder.vhd (54 lines)
+	2 violations in file /home/ecegrid/a/mg228/ece437/project3/source/cpuStaller.vhd (49 lines)
+	4 violations in file /home/ecegrid/a/mg228/ece437/project3/source/dcache.vhd (235 lines)
+	5 violations in file /home/ecegrid/a/mg228/ece437/project3/source/dcache_ctrl.vhd (264 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/forwardingUnit.vhd (41 lines)
+	4 violations in file /home/ecegrid/a/mg228/ece437/project3/source/icache.vhd (126 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/inverter.vhd (17 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/memoryArbiter.vhd (141 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/pcReg.vhd (35 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/pcUpdate.vhd (18 lines)
+	2 violations in file /home/ecegrid/a/mg228/ece437/project3/source/pcWriteEnableControl.vhd (94 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_IF_ID.vhd (46 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_ID_EX.vhd (284 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_EX_MEM.vhd (319 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/pipelineRegister_MEM_WB.vhd (273 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/ram.vhd (120 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/registerFile.vhd (236 lines)
+	1 violations in file /home/ecegrid/a/mg228/ece437/project3/source/VarLatRAM.vhd (124 lines)
+File without violation:
+
+Total number of violations: 45
+Total number of source code lines: 5282
+
+Violations per rule:
+
+Policy "RMM_RTL_CODING_GUIDELINES", Ruleset "BASIC_CODING_PRACTICES":
+	<violated>/<checked> x <label> [<severity>]:<message>
+	--------------------   ------- ----------------------
+	0/584 x R_521_10 [ERROR]: "Always use descending range for multi-bit signals and ports"
+	12/4952 x R_529_1 [ERROR]: "VHDL or Verilog reserved words (<%item>) cannot be used as identifiers"
+
+Policy "LEDA", Ruleset "DESIGN_STRUCTURE":
+	<violated>/<checked> x <label> [<severity>]:<message>
+	--------------------   ------- ----------------------
+	9/1561 x B_1002 [WARNING]: "Port declaration <%item> is unused or partially unused"
+
+Policy "LEDA", Ruleset "CLOCKS":
+	<violated>/<checked> x <label> [<severity>]:<message>
+	--------------------   ------- ----------------------
+	0/13 x B_1204 [WARNING]: "Multi-bit expression used as clock"
+
+Policy "LEDA", Ruleset "RTL_SYNTHESIS":
+	<violated>/<checked> x <label> [<severity>]:<message>
+	--------------------   ------- ----------------------
+	0/19 x B_2011 [WARNING]: "Variable is not always initialized in process body before being read"
+
+Policy "LEDA", Ruleset "STATEMENTS":
+	<violated>/<checked> x <label> [<severity>]:<message>
+	--------------------   ------- ----------------------
+	0/6 x B_3410 [WARNING]: "X in case expression"
+	4/19 x B_3419 [ERROR]: "Missing signal <%item> in sensitivity list"
+
+Policy "LEDA", Ruleset "STATE_MACHINES":
+	<violated>/<checked> x <label> [<severity>]:<message>
+	--------------------   ------- ----------------------
+	0/3 x B_3602 [WARNING]: "Moore style description of state machines is recommended"
+	0/3 x B_3604 [WARNING]: "Assign a default state to the state machines"
+	0/3 x B_3605_B [WARNING]: "Use an enumerated type to define the state vector of a state machine"
+	3/3 x B_3607 [WARNING]: "The number of states in a state machine should be a power of 2"
+
+Policy "DC", Ruleset "RTL":
+	<violated>/<checked> x <label> [<severity>]:<message>
+	--------------------   ------- ----------------------
+	0/59 x DCHDL_115 [ERROR]: "Illegal mixing of named and unnamed port association"
+
+Policy "FORMALITY", Ruleset "SIMULATION_MISMATCH":
+	<violated>/<checked> x <label> [<severity>]:<message>
+	--------------------   ------- ----------------------
+	0/6 x FM_2_10 [ERROR]: "Using X,Z values or ? in case items is not recommended (such items may be ignored by synthesis tools)"
+	2/16343 x FM_2_4 [ERROR]: "Assignment to X is not recommended (handled differently by simulation and synthesis tools)"
+	13/59 x FM_2_7 [WARNING]: "Use named association in port map"
+	2/932 x FM_2_9 [ERROR]: "Using X,Z values or ? for comparison is not recommended (differently handled by simulation/synthesis tools)"
+
+
+-----------------------------------------------------------------
+--                    DESIGN violations                        --
+-----------------------------------------------------------------
+
+Violations per rule:
+
+Policy: LEDA  Ruleset: DESIGN_STRUCTURE
+	<violated>/<checked> x <label> [<severity>]:<message>
+	------- --------------------- ----------------------
+	0/1 x C_1001 [ERROR]: "Flipflop with fixed value data input is detected"
+
+Policy: ELAB  Ruleset: ELB
+	<violated>/<checked> x <label> [<severity>]:<message>
+	------- --------------------- ----------------------
+	1/1 x ELB093A [WARNING]: Instance %s of module/entity/cell %s is inferred as a black-box and will be considered so during the next checks.
+Total number of violations: 1
+
+Policy: DESIGN  Ruleset: CLOCKS
+	<violated>/<checked> x <label> [<severity>]:<message>
+	---------- ------------------- ----------------------
+	0/1 x NTL_CLK04 [ERROR]: "Do not use internally generated clock"
+	0/1 x NTL_CLK09 [ERROR]: "All clock signals should be generated in a module driven by a single external clock"
+
+
+Policy: DESIGN  Ruleset: DFT
+	<violated>/<checked> x <label> [<severity>]:<message>
+	---------- ------------------- ----------------------
+	1/1 x NTL_DFT38 [ERROR]: "Flip-flop without reset detected"
+
+
+Policy: DESIGN  Ruleset: RESETS
+	<violated>/<checked> x <label> [<severity>]:<message>
+	---------- ------------------- ----------------------
+	1/1 x NTL_RST06 [ERROR]: "Avoid internally generated resets"
+
+
+Policy: DESIGN  Ruleset: STRUCTURE
+	<violated>/<checked> x <label> [<severity>]:<message>
+	---------- ------------------- ----------------------
+	11/1 x NTL_STR06 [ERROR]: "Top level output should be registered"
+	0/1 x NTL_STR29 [ERROR]: "Pulse generator"
+	3/1 x NTL_STR33 [ERROR]: "Asynchronous feedback loop detected at"
+	1/1 x NTL_STR47 [ERROR]: "Do not use latch"
+	0/1 x NTL_STR61 [ERROR]: "Do not use clock or enable signals as data inputs"
+	0/1 x NTL_STR72 [ERROR]: "A non-tristate net can have only one non-tristate driver"
+
+
+-----------------------------------------------------------------
+--                    DESIGN REPORT                            --
+-----------------------------------------------------------------
+
+Name of the top:        CPUTEST
+
+Library containing the top unit:        /home/ecegrid/a/mg228/ece437/project3/.leda_work
+
+Number of design pins:  152
+
+Number of hierarchy levels in the design:       5
+
+Number of flipflops and latches that LEDA tools has inferred
+        Number of flipflops:    5487
+        Number of latches:      1
+
+Number of clock origins:	1
+Number of reset origins:	2
+List of clock origins:
+        CPUTEST.CLOCK_27
+
+List of reset origins:
+        CPUTEST.KEY(3)
+        CPUTEST.CPU_COMP.THECPU.ICACHEBLOCK.AIMEMREAD
+

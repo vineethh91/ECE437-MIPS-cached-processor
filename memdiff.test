@@ -1,0 +1,78 @@
+processing file asmFiles/dateCalculator.asm (1 of 24)
+processing file asmFiles/fib.asm (2 of 24)
+processing file asmFiles/insertion_sort.asm (3 of 24)
+processing file asmFiles/multAlgorithmSkel.asm (4 of 24)
+processing file asmFiles/mult.asm (5 of 24)
+processing file asmFiles/multProcedureSkel.asm (6 of 24)
+processing file asmFiles/quick.asm (7 of 24)
+processing file asmFiles/search.asm (8 of 24)
+processing file asmFiles/search_wtf.asm (9 of 24)
+processing file asmFiles/test.branchjump1.asm (10 of 24)
+processing file asmFiles/test.branchjump1.withoutNOP.asm (11 of 24)
+processing file asmFiles/test.bsort2.asm (12 of 24)
+processing file asmFiles/test.bsort.asm (13 of 24)
+processing file asmFiles/test.forwarding1.asm (14 of 24)
+processing file asmFiles/test.forwarding2.asm (15 of 24)
+--- memout.hex	2013-03-21 11:43:14.026880918 -0400
++++ memdump.hex	2013-03-21 11:43:12.932853421 -0400
+@@ -1,27 +1,30 @@
+ :04000000340100F0D7
+ :040001003402008045
+-:04000200241F009027
+-:0400040003E000080D
+-:040005008C24000443
+-:040006008C2500083D
+-:04000700008530211F
+-:0400080000C53821D6
+-:0400090000C74021CB
+-:04000A000107482181
+-:04000B000109502176
+-:04000C00014958212D
+-:04000D00010958216C
+-:04000E0000E958218C
+-:04000F00AC4B0010E6
+-:040010000169602101
+-:04001100AC430000FC
+-:04001200AC440004F6
+-:04001300AC450008F0
+-:04001400AC47000CE9
+-:04001500FFFFFFFFEB
+-:04002000000000904C
+-:04002600FFFFFFFFDA
++:040002008C2300004B
++:040003008C24000445
++:040004008C2500083F
++:040005000085302121
++:0400060000C53821D8
++:0400070000C74021CD
++:040008000107482183
++:040009000109502178
++:04000A00014958212F
++:04000B00010958216E
++:04000C0000E958218E
++:04000D00AC4B0010E8
++:04000E000169602103
++:04000F00AC430000FE
++:04001000AC440004F8
++:04001100AC450008F2
++:04001200AC47000CEB
++:04001300FFFFFFFFED
++:040020000000733732
++:0400210000002701B3
++:040022000000133790
++:0400230000004D6F1D
++:040024000001228530
+ :04003C000000733716
+ :04003D000000270197
+ :04003E000000133774
++:040C400000000003AD
+ :00000001FF
+processing file asmFiles/test.ldst1.asm (16 of 24)
+processing file asmFiles/test.ldst1.withoutNOP.asm (17 of 24)
+processing file asmFiles/test.ldst2.asm (18 of 24)
+processing file asmFiles/test.ldst2.withoutNOP.asm (19 of 24)
+processing file asmFiles/test.ldst3.asm (20 of 24)
+processing file asmFiles/test.ldst3.withoutNOP.asm (21 of 24)
+processing file asmFiles/test.loadstore2.asm (22 of 24)
+processing file asmFiles/test.loadstore.asm (23 of 24)
+processing file asmFiles/test.rtype.asm (24 of 24)

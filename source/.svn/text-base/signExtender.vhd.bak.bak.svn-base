@@ -1,0 +1,21 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity signExtender is
+    port ( 
+        imm16: IN STD_LOGIC_VECTOR (15 downto 0);
+        extOp: IN STD_LOGIC;
+        signExtended: OUT STD_LOGIC_VECTOR (31 downto 0)
+        );
+end signExtender;
+
+architecture arch_signExtender of signExtender is
+
+begin
+  
+    signExtended <= "0000000000000000" & imm16 when extOp = '0' else
+                    "0000000000000000" & imm16 when extOp = '1' and imm16(15) = '0' else
+                    "1111111111111111" & imm16 when others;
+
+end arch_signExtender;

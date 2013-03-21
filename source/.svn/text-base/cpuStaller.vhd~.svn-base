@@ -1,0 +1,17 @@
+LIBRARY IEEE;
+USE IEEE.std_logic_1164.ALL;
+use ieee.numeric_std.all;
+
+entity cpuStaller is
+
+   port ( 
+       
+	) ;
+
+end cpuStaller;
+
+architecture arch_cpuStaller of cpuStaller is
+begin
+
+end arch_cpuStaller;
+
